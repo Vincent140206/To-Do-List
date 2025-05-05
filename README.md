@@ -20,6 +20,7 @@ Ke depannya, saya berencana menambahkan fitur login dan register menggunakan Fir
 - Penyimpanan lokal menggunakan Hive (offline-ready)
 - Tampilan antarmuka yang simpel dan bersih
 - **(Rencana)** Fitur login dan register menggunakan Firebase
+- **(Rencana)** Fitur pengingat tugas / notifikasi
 
 ## 🎯 Tujuan Proyek
 
@@ -30,6 +31,7 @@ Ke depannya, saya berencana menambahkan fitur login dan register menggunakan Fir
 
 - [x] Fitur dasar to-do list (tambah, hapus tugas)
 - [x] Integrasi Hive untuk penyimpanan lokal
+- [ ] Tambahkan fitur jam dan tanggal untuk setiap tugas
 - [ ] Autentikasi Firebase (login/register)
 - [ ] Fitur pengingat tugas / notifikasi
 
@@ -51,10 +53,6 @@ Ke depannya, saya berencana menambahkan fitur login dan register menggunakan Fir
    ```bash
    flutter run
    ```
-
-## 📸 Cuplikan Layar
-
-*(Tambahkan screenshot aplikasi di bagian ini jika tersedia)*
 
 ## 📄 Lisensi
 
