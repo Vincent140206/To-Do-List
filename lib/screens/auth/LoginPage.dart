@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:to_do_list/widget/Button.dart';
+import '../../widget/Button.dart';
 import '../../widget/TextField.dart';
 import '../HomeScreen.dart';
 import 'ForgotPasswordPage.dart';
