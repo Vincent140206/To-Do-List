@@ -42,12 +42,10 @@ class _HomePageState extends State<HomePage> {
 
     for (var event in eventsBox.values) {
       try {
-        // Parse the date from the key
         DateTime eventDate = DateTime.parse(event.key);
         final eventDateOnly =
             DateTime(eventDate.year, eventDate.month, eventDate.day);
 
-        // Add event to the map
         if (events.containsKey(eventDateOnly)) {
           events[eventDateOnly]!.add(event);
         } else {
@@ -59,13 +57,12 @@ class _HomePageState extends State<HomePage> {
       }
     }
 
-    // Update selected events
     if (_selectedDay != null) {
       _selectedEvents.value = _getEventForDay(_selectedDay!);
       print(
           "Selected events for ${_selectedDay}: ${_selectedEvents.value.length}");
     }
-    setState(() {}); // Refresh UI
+    setState(() {});
   }
 
   Future<void> addEventToHive(String title, DateTime eventDate) async {
@@ -73,10 +70,8 @@ class _HomePageState extends State<HomePage> {
       final dateKey = eventDate.toIso8601String();
       print("Adding event '$title' with key: $dateKey");
 
-      // Create event with key
       Event newEvent = Event(title, key: dateKey);
 
-      // Add to Hive box
       await eventsBox.put(dateKey, newEvent);
       print("Event added to Hive box. Current count: ${eventsBox.length}");
 
@@ -93,6 +88,73 @@ class _HomePageState extends State<HomePage> {
       print(
           "Day selected: $selectedDay. Events: ${_selectedEvents.value.length}");
     });
+  }
+
+  void _showYearPicker(BuildContext context) {
+    int endYear = DateTime(2100).year;
+    int startYear = endYear - 99;
+    List<int> yearList = List.generate(100, (index) => startYear + index);
+    DateTime lastDay = DateTime(endYear, 12, 31);
+    final scrollToYear = _selectedDay?.year ?? DateTime.now().year;
+    final scrollToIndex = yearList.indexOf(scrollToYear);
+    final crossAxisCount = 3;
+    final itemHeight = 90.0;
+    final row = scrollToIndex ~/ crossAxisCount;
+    final initialScrollOffset = row * itemHeight;
+    ScrollController scrollController = ScrollController(initialScrollOffset: initialScrollOffset);
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          title: Text('Select Year'),
+          content: SizedBox(
+            height: 300,
+            width: 300,
+            child: GridView.builder(
+              controller: scrollController,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: crossAxisCount,
+                childAspectRatio: 1,
+              ),
+              itemCount: yearList.length,
+              itemBuilder: (BuildContext context, int index) {
+                int year = yearList[index];
+                return GestureDetector(
+                  onTap: () {
+                    DateTime selectedDate = DateTime(year, DateTime.now().month, DateTime.now().day);
+                    if (selectedDate.isBefore(lastDay) || selectedDate.isAtSameMomentAs(lastDay)) {
+                      setState(() {
+                        _selectedDay = selectedDate;
+                        today = selectedDate;
+                        _selectedEvents.value = _getEventForDay(_selectedDay!);
+                      });
+                    }
+                    Navigator.of(context).pop();
+                  },
+                  child: Card(
+                    shadowColor: Colors.black,
+                    color: Colors.white,
+                    child: Center(
+                      child: Text(year.toString()),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+          actions: [
+            CustomButton(
+              text: "Cancel",
+              onPressed: () => Navigator.of(context).pop(),
+              height: 35,
+              width: 100,
+            ),
+          ],
+        );
+      },
+    );
   }
 
   List<Event> _getEventForDay(DateTime day) {
@@ -186,6 +248,7 @@ class _HomePageState extends State<HomePage> {
                     lastDay: DateTime(2100),
                     onDaySelected: _onDaySelected,
                     eventLoader: _getEventForDay,
+                    onHeaderTapped: (focusedDay) => _showYearPicker(context),
                   ),
                 ],
               ),
