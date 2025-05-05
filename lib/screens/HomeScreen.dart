@@ -289,7 +289,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                   ),
-                  SizedBox(height: screenHeight * 0.02),
+                  SizedBox(height: 20),
                   Text(
                     "Events",
                     style: TextStyle(
@@ -298,7 +298,15 @@ class _HomePageState extends State<HomePage> {
                       color: Colors.black,
                     ),
                   ),
-                  SizedBox(height: screenHeight * 0.00001),
+                  SizedBox(height: 1),
+                  if (_selectedEvents.value.isEmpty)
+                    Text(
+                      "No events for this day",
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.grey,
+                      ),
+                    ),
                 ],
               ),
             ),
@@ -384,7 +392,7 @@ class _HomePageState extends State<HomePage> {
                               icon: const Icon(Icons.delete, color: Colors.red),
                               onPressed: () async {
                                 await eventsBox.delete(event.key);
-                                fetchEvents();
+                                await fetchEvents();
                               },
                             ),
                           ],
