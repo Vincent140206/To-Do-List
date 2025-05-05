@@ -32,10 +32,11 @@ class _HomePageState extends State<HomePage> {
     super.dispose();
   }
 
-  void _onDaySelected(DateTime day, DateTime focusedDay) {
+  void _onDaySelected(DateTime selectedDay, DateTime focusedDay) {
     setState(() {
-      _selectedDay = day;
+      _selectedDay = selectedDay;
       _selectedEvents.value = _getEventForDay(_selectedDay!);
+      _selectedEvents.value = _getEventForDay(selectedDay);
     });
   }
 
@@ -78,7 +79,7 @@ class _HomePageState extends State<HomePage> {
                     },
                     height: 35,
                     width: 90,
-                  )
+                  ),
                 ],
               );
             },
@@ -90,61 +91,70 @@ class _HomePageState extends State<HomePage> {
         ),
         child: Icon(Icons.add, color: Colors.white),
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.all(screenWidth * 0.05),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(height: screenHeight * 0.1),
-              Text(
-                "Welcome!",
-                style: TextStyle(
-                  fontSize: 50,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.red,
-                ),
+      body: CustomScrollView(
+        slivers: [
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: EdgeInsets.all(screenWidth * 0.05),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(height: screenHeight * 0.1),
+                  Text(
+                    "Welcome!",
+                    style: TextStyle(
+                      fontSize: 50,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.red,
+                    ),
+                  ),
+                  Text(
+                    "Vincent",
+                    style: TextStyle(
+                      fontSize: 50,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                  SizedBox(height: screenHeight * 0.02),
+                  TableCalendar(
+                    headerStyle: HeaderStyle(
+                      formatButtonVisible: false,
+                      titleCentered: true,
+                    ),
+                    selectedDayPredicate: (day) => isSameDay(day, _selectedDay),
+                    availableGestures: AvailableGestures.all,
+                    focusedDay: _selectedDay ?? today,
+                    firstDay: DateTime(2000),
+                    lastDay: DateTime(2100),
+                    onDaySelected: _onDaySelected,
+                    eventLoader: _getEventForDay,
+                  ),
+                ],
               ),
-              Text(
-                "Vincent",
-                style: TextStyle(
-                  fontSize: 50,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
-              ),
-              SizedBox(height: screenHeight * 0.02),
-              TableCalendar(
-                headerStyle: HeaderStyle(
-                  formatButtonVisible: false,
-                  titleCentered: true,
-                ),
-                selectedDayPredicate: (day) => isSameDay(day, _selectedDay),
-                availableGestures: AvailableGestures.all,
-                focusedDay: _selectedDay ?? today,
-                firstDay: DateTime(2000),
-                lastDay: DateTime(2100),
-                onDaySelected: _onDaySelected,
-                eventLoader: _getEventForDay,
-              ),
-              Expanded(
-                child: ValueListenableBuilder<List<Event>>(
-                  valueListenable: _selectedEvents,
-                  builder: (context, value, _) {
-                    return ListView.builder(
-                      itemCount: value.length,
-                      itemBuilder: (context, index) {
-                        return ListTile(
-                          title: Text(value[index].title),
-                        );
-                      },
-                    );
-                  },
-                ),
-              ),
-            ],
+            ),
           ),
-        ),
+          SliverList(
+            delegate: SliverChildBuilderDelegate(
+                  (context, index) {
+                final event = _selectedEvents.value[index];
+                return Container(
+                  margin: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                  decoration: BoxDecoration(
+                     border: Border.all(color: Colors.grey),
+                      borderRadius: BorderRadius.circular(10),
+                    color: Colors.white
+                  ),
+                  child: ListTile(
+                    onTap: () => print(event.title),
+                    title: Text(event.title),
+                  ),
+                );
+              },
+              childCount: _selectedEvents.value.length,
+            ),
+          ),
+        ],
       ),
     );
   }
