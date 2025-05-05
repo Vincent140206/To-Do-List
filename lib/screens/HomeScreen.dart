@@ -36,8 +36,73 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       _selectedDay = selectedDay;
       _selectedEvents.value = _getEventForDay(_selectedDay!);
-      _selectedEvents.value = _getEventForDay(selectedDay);
     });
+  }
+
+  void _showYearPicker(BuildContext context) {
+    int endYear = DateTime(2100).year;
+    int startYear = endYear - 99;
+    List<int> yearList = List.generate(100, (index) => startYear + index);
+    DateTime lastDay = DateTime(endYear, 12, 31);
+    final scrollToYear = _selectedDay?.year ?? DateTime.now().year;
+    final scrollToIndex = yearList.indexOf(scrollToYear);
+    final crossAxisCount = 3;
+    final itemHeight = 90.0;
+    final row = scrollToIndex ~/ crossAxisCount;
+    final initialScrollOffset = row * itemHeight;
+    ScrollController scrollController = ScrollController(initialScrollOffset: initialScrollOffset);
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          title: Text('Select Year'),
+          content: SizedBox(
+            height: 300,
+            width: 300,
+            child: GridView.builder(
+              controller: scrollController,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+                childAspectRatio: 1,
+              ),
+              itemCount: yearList.length,
+              itemBuilder: (BuildContext context, int index) {
+                int year = yearList[index];
+                return GestureDetector(
+                  onTap: () {
+                    DateTime selectedDate = DateTime(year, DateTime.now().month, DateTime.now().day);
+                    if (selectedDate.isBefore(lastDay) || selectedDate.isAtSameMomentAs(lastDay)) {
+                      setState(() {
+                        _selectedDay = selectedDate; // Update the selected day
+                        today = selectedDate; // Update the focused day to the selected year
+                      });
+                    }
+                    Navigator.of(context).pop();
+                  },
+                  child: Card(
+                    shadowColor: Colors.black,
+                    color: Colors.white,
+                    child: Center(
+                      child: Text(year.toString()),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+          actions: [
+            CustomButton(
+              text: "Cancel",
+              onPressed: () => Navigator.of(context).pop(),
+              height: 35,
+              width: 100,
+            ),
+          ],
+        );
+      },
+    );
   }
 
   List<Event> _getEventForDay(DateTime day) {
@@ -124,11 +189,12 @@ class _HomePageState extends State<HomePage> {
                     ),
                     selectedDayPredicate: (day) => isSameDay(day, _selectedDay),
                     availableGestures: AvailableGestures.all,
-                    focusedDay: _selectedDay ?? today,
+                    focusedDay: today,
                     firstDay: DateTime(2000),
                     lastDay: DateTime(2100),
                     onDaySelected: _onDaySelected,
                     eventLoader: _getEventForDay,
+                    onHeaderTapped: (focusedDay) => _showYearPicker(context),
                   ),
                 ],
               ),
@@ -141,9 +207,9 @@ class _HomePageState extends State<HomePage> {
                 return Container(
                   margin: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                   decoration: BoxDecoration(
-                     border: Border.all(color: Colors.grey),
-                      borderRadius: BorderRadius.circular(10),
-                    color: Colors.white
+                    border: Border.all(color: Colors.grey),
+                    borderRadius: BorderRadius.circular(10),
+                    color: Colors.white,
                   ),
                   child: ListTile(
                     onTap: () => print(event.title),
