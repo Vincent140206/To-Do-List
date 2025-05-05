@@ -7,5 +7,8 @@ class Event extends HiveObject {
   @HiveField(0)
   String title;
 
-  Event(this.title);
+  @HiveField(1)
+  String key;
+
+  Event(this.title, {this.key = ""});
 }
