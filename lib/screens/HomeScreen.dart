@@ -101,7 +101,8 @@ class _HomePageState extends State<HomePage> {
     final itemHeight = 90.0;
     final row = scrollToIndex ~/ crossAxisCount;
     final initialScrollOffset = row * itemHeight;
-    ScrollController scrollController = ScrollController(initialScrollOffset: initialScrollOffset);
+    ScrollController scrollController =
+        ScrollController(initialScrollOffset: initialScrollOffset);
 
     showDialog(
       context: context,
@@ -123,8 +124,10 @@ class _HomePageState extends State<HomePage> {
                 int year = yearList[index];
                 return GestureDetector(
                   onTap: () {
-                    DateTime selectedDate = DateTime(year, DateTime.now().month, DateTime.now().day);
-                    if (selectedDate.isBefore(lastDay) || selectedDate.isAtSameMomentAs(lastDay)) {
+                    DateTime selectedDate = DateTime(
+                        year, DateTime.now().month, DateTime.now().day);
+                    if (selectedDate.isBefore(lastDay) ||
+                        selectedDate.isAtSameMomentAs(lastDay)) {
                       setState(() {
                         _selectedDay = selectedDate;
                         today = selectedDate;
@@ -174,6 +177,7 @@ class _HomePageState extends State<HomePage> {
             context: context,
             builder: (context) {
               return AlertDialog(
+                backgroundColor: Colors.white,
                 scrollable: true,
                 title: Text("Event Name"),
                 content: Padding(
@@ -249,7 +253,52 @@ class _HomePageState extends State<HomePage> {
                     onDaySelected: _onDaySelected,
                     eventLoader: _getEventForDay,
                     onHeaderTapped: (focusedDay) => _showYearPicker(context),
+                    calendarBuilders: CalendarBuilders(
+                      markerBuilder: (context, date, events) {
+                        if (events.isNotEmpty) {
+                          Color dotColor = Colors.red;
+                          return Positioned(
+                            bottom: 10,
+                            child: Container(
+                              width: 7,
+                              height: 7,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: dotColor,
+                              ),
+                            ),
+                          );
+                        }
+                        return SizedBox.shrink();
+                      },
+                    ),
+                    calendarStyle: CalendarStyle(
+                      selectedDecoration: BoxDecoration(
+                        color: Colors.red.shade700,
+                        shape: BoxShape.circle,
+                      ),
+                      todayDecoration: BoxDecoration(
+                        color: Colors.redAccent.shade100,
+                        shape: BoxShape.circle,
+                      ),
+                      defaultDecoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                      ),
+                      weekendDecoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                      ),
+                    ),
                   ),
+                  SizedBox(height: screenHeight * 0.02),
+                  Text(
+                    "Events",
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                  SizedBox(height: screenHeight * 0.00001),
                 ],
               ),
             ),
@@ -281,6 +330,7 @@ class _HomePageState extends State<HomePage> {
                                     context: context,
                                     builder: (context) {
                                       return AlertDialog(
+                                        backgroundColor: Colors.white,
                                         scrollable: true,
                                         title: Text("Edit Event"),
                                         content: Padding(
@@ -315,7 +365,7 @@ class _HomePageState extends State<HomePage> {
                                                             key: event.key));
                                                     Navigator.of(context).pop();
                                                     eventController.clear();
-                                                    fetchEvents();
+                                                    await fetchEvents();
                                                   }
                                                 },
                                                 height: 35,
@@ -328,7 +378,8 @@ class _HomePageState extends State<HomePage> {
                                     },
                                   );
                                 },
-                                icon: const Icon(Icons.edit, color: Colors.red)),
+                                icon:
+                                    const Icon(Icons.edit, color: Colors.red)),
                             IconButton(
                               icon: const Icon(Icons.delete, color: Colors.red),
                               onPressed: () async {
