@@ -51,7 +51,7 @@ class _HomePageState extends State<HomePage> {
         } else {
           events[eventDateOnly] = [event];
         }
-        print("Added event: ${event.title} for date: ${eventDateOnly}");
+        print("Added event: ${event.title} for date: $eventDateOnly");
       } catch (e) {
         print("Error parsing date from event key: ${event.key}. Error: $e");
       }
@@ -60,7 +60,7 @@ class _HomePageState extends State<HomePage> {
     if (_selectedDay != null) {
       _selectedEvents.value = _getEventForDay(_selectedDay!);
       print(
-          "Selected events for ${_selectedDay}: ${_selectedEvents.value.length}");
+          "Selected events for $_selectedDay: ${_selectedEvents.value.length}");
     }
     setState(() {});
   }
@@ -97,8 +97,8 @@ class _HomePageState extends State<HomePage> {
     DateTime lastDay = DateTime(endYear, 12, 31);
     final scrollToYear = _selectedDay?.year ?? DateTime.now().year;
     final scrollToIndex = yearList.indexOf(scrollToYear);
-    final crossAxisCount = 3;
-    final itemHeight = 90.0;
+    const crossAxisCount = 3;
+    const itemHeight = 90.0;
     final row = scrollToIndex ~/ crossAxisCount;
     final initialScrollOffset = row * itemHeight;
     ScrollController scrollController =
@@ -109,7 +109,7 @@ class _HomePageState extends State<HomePage> {
       builder: (BuildContext context) {
         return AlertDialog(
           backgroundColor: Colors.white,
-          title: Text('Select Year'),
+          title: const Text('Select Year'),
           content: SizedBox(
             height: 300,
             width: 300,
@@ -179,9 +179,9 @@ class _HomePageState extends State<HomePage> {
               return AlertDialog(
                 backgroundColor: Colors.white,
                 scrollable: true,
-                title: Text("Event Name"),
+                title: const Text("Event Name"),
                 content: Padding(
-                  padding: EdgeInsets.all(8),
+                  padding: const EdgeInsets.all(8),
                   child: TextField(controller: eventController),
                 ),
                 actions: [
@@ -209,10 +209,10 @@ class _HomePageState extends State<HomePage> {
           );
         },
         backgroundColor: Colors.red,
-        shape: RoundedRectangleBorder(
+        shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(50)),
         ),
-        child: Icon(Icons.add, color: Colors.white),
+        child: const Icon(Icons.add, color: Colors.white),
       ),
       body: CustomScrollView(
         slivers: [
@@ -223,7 +223,7 @@ class _HomePageState extends State<HomePage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   SizedBox(height: screenHeight * 0.1),
-                  Text(
+                  const Text(
                     "Welcome!",
                     style: TextStyle(
                       fontSize: 50,
@@ -231,7 +231,7 @@ class _HomePageState extends State<HomePage> {
                       color: Colors.red,
                     ),
                   ),
-                  Text(
+                  const Text(
                     "Vincent",
                     style: TextStyle(
                       fontSize: 50,
@@ -241,7 +241,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                   SizedBox(height: screenHeight * 0.02),
                   TableCalendar(
-                    headerStyle: HeaderStyle(
+                    headerStyle: const HeaderStyle(
                       formatButtonVisible: false,
                       titleCentered: true,
                     ),
@@ -269,7 +269,7 @@ class _HomePageState extends State<HomePage> {
                             ),
                           );
                         }
-                        return SizedBox.shrink();
+                        return const SizedBox.shrink();
                       },
                     ),
                     calendarStyle: CalendarStyle(
@@ -281,16 +281,16 @@ class _HomePageState extends State<HomePage> {
                         color: Colors.redAccent.shade100,
                         shape: BoxShape.circle,
                       ),
-                      defaultDecoration: BoxDecoration(
+                      defaultDecoration: const BoxDecoration(
                         shape: BoxShape.circle,
                       ),
-                      weekendDecoration: BoxDecoration(
+                      weekendDecoration: const BoxDecoration(
                         shape: BoxShape.circle,
                       ),
                     ),
                   ),
-                  SizedBox(height: 20),
-                  Text(
+                  const SizedBox(height: 20),
+                  const Text(
                     "Events",
                     style: TextStyle(
                       fontSize: 20,
@@ -298,9 +298,9 @@ class _HomePageState extends State<HomePage> {
                       color: Colors.black,
                     ),
                   ),
-                  SizedBox(height: 1),
+                  const SizedBox(height: 1),
                   if (_selectedEvents.value.isEmpty)
-                    Text(
+                    const Text(
                       "No events for this day",
                       style: TextStyle(
                         fontSize: 16,
@@ -319,7 +319,7 @@ class _HomePageState extends State<HomePage> {
                   (context, index) {
                     final event = selectedEvents[index];
                     return Container(
-                      margin: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                       decoration: BoxDecoration(
                         border: Border.all(color: Colors.grey),
                         borderRadius: BorderRadius.circular(10),
@@ -340,9 +340,9 @@ class _HomePageState extends State<HomePage> {
                                       return AlertDialog(
                                         backgroundColor: Colors.white,
                                         scrollable: true,
-                                        title: Text("Edit Event"),
+                                        title: const Text("Edit Event"),
                                         content: Padding(
-                                          padding: EdgeInsets.all(8),
+                                          padding: const EdgeInsets.all(8),
                                           child: TextField(
                                               controller: eventController),
                                         ),
@@ -358,7 +358,7 @@ class _HomePageState extends State<HomePage> {
                                                 height: 35,
                                                 width: 100,
                                               ),
-                                              Spacer(),
+                                              const Spacer(),
                                               CustomButton(
                                                 text: "Update",
                                                 onPressed: () async {

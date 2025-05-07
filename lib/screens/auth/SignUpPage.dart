@@ -35,7 +35,7 @@ class _SignUpPageState extends State<SignUpPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(height: screenHeight * 0.1),
-              Text(
+              const Text(
                 "Create",
                 style: TextStyle(
                   fontSize: 50,
@@ -43,7 +43,7 @@ class _SignUpPageState extends State<SignUpPage> {
                   color: Colors.red,
                 ),
               ),
-              Text(
+              const Text(
                 "Account",
                 style: TextStyle(
                   fontSize: 50,
@@ -52,7 +52,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 ),
               ),
               SizedBox(height: screenHeight * 0.02),
-              Text(
+              const Text(
                 "Silakan buat akun baru untuk mengakses aplikasi ini! Anda dapat menggunakan email atau akun Google Anda.",
               ),
               SizedBox(height: screenHeight * 0.02),
@@ -107,15 +107,15 @@ class _SignUpPageState extends State<SignUpPage> {
                     materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     visualDensity: VisualDensity.compact,
                   ),
-                  SizedBox(width: 5),
+                  const SizedBox(width: 5),
                   RichText(
                     text: TextSpan(
                       text: "Saya setuju dengan ",
-                      style: TextStyle(color: Colors.black, fontSize: 10),
+                      style: const TextStyle(color: Colors.black, fontSize: 10),
                       children: [
                         TextSpan(
                           text: "Syarat dan Ketentuan",
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: Colors.red,
                             fontWeight: FontWeight.bold,
                           ),
@@ -124,18 +124,18 @@ class _SignUpPageState extends State<SignUpPage> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => TermsPage(),
+                                  builder: (context) => const TermsPage(),
                                 ),
                               );
                             },
                         ),
-                        TextSpan(
+                        const TextSpan(
                           text: " dan ",
                           style: TextStyle(color: Colors.black, fontSize: 10),
                         ),
                         TextSpan(
                           text: "Kebijakan Privasi",
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: Colors.red,
                             fontWeight: FontWeight.bold,
                           ),
@@ -144,7 +144,7 @@ class _SignUpPageState extends State<SignUpPage> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => PrivacyPolicyPage(),
+                                  builder: (context) => const PrivacyPolicyPage(),
                                 ),
                               );
                             },
@@ -160,7 +160,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 onPressed: acceptedTerms ? () {
                   if (nameController.text.isEmpty || emailController.text.isEmpty || passController.text.isEmpty || repassController.text.isEmpty) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
+                      const SnackBar(
                         duration: Duration(seconds: 2),
                         backgroundColor: Colors.red,
                         content: Text("Semua field harus diisi",
@@ -170,7 +170,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     );
                   } else if (passController.text != repassController.text) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text("Password tidak cocok")),
+                      const SnackBar(content: Text("Password tidak cocok")),
                     );
                   } else {
                     print("Akun dibuat");

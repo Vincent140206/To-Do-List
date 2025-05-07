@@ -10,14 +10,14 @@ class TermsPage extends StatelessWidget {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
-        title: Text('Syarat dan Ketentuan'),
+        title: const Text('Syarat dan Ketentuan'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
           child: Text(
               loremIpsum(paragraphs: 10, words: 1000),
-            style: TextStyle(fontSize: 16),
+            style: const TextStyle(fontSize: 16),
           ),
         ),
       ),
@@ -34,14 +34,14 @@ class PrivacyPolicyPage extends StatelessWidget {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
-        title: Text('Kebijakan Privasi'),
+        title: const Text('Kebijakan Privasi'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
           child: Text(
             loremIpsum(paragraphs: 10, words: 1000),
-            style: TextStyle(fontSize: 16),
+            style: const TextStyle(fontSize: 16),
           ),
         ),
       ),

@@ -30,7 +30,7 @@ class _LoginPageState extends State<LoginPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(height: screenHeight * 0.13),
-              Text(
+              const Text(
                 "Welcome",
                 style: TextStyle(
                   fontSize: 50,
@@ -38,7 +38,7 @@ class _LoginPageState extends State<LoginPage> {
                   color: Colors.red,
                 ),
               ),
-              Text(
+              const Text(
                 "back!",
                 style: TextStyle(
                   fontSize: 50,
@@ -46,8 +46,8 @@ class _LoginPageState extends State<LoginPage> {
                   color: Colors.black,
                 ),
               ),
-              SizedBox(height: 0.10),
-              Text(
+              const SizedBox(height: 0.10),
+              const Text(
                 "Selamat datang! Silakan masukan email dan password anda untuk mengakses aplikasi ini!",
               ),
               SizedBox(height: screenHeight * 0.02),
@@ -57,14 +57,14 @@ class _LoginPageState extends State<LoginPage> {
                 isPassword: false,
                 controller: emailController,
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               CustomTextField(
                 iconAssetPath: "assets/icons/password.png",
                 label: "Password",
                 isPassword: true,
                 controller: passController,
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               Row(
                 children: [
                   Checkbox(
@@ -78,9 +78,9 @@ class _LoginPageState extends State<LoginPage> {
                     materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     visualDensity: VisualDensity.compact,
                   ),
-                  SizedBox(width: 5),
-                  Text("Remember me"),
-                  Spacer(),
+                  const SizedBox(width: 5),
+                  const Text("Remember me"),
+                  const Spacer(),
                   GestureDetector(
                     onTap: () {
                       Navigator.push(
@@ -90,11 +90,11 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       );
                     },
-                    child: Text("Forgot password?"),
+                    child: const Text("Forgot password?"),
                   ),
                 ],
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               CustomButton(
                 text: "Sign In",
                 onPressed: () {
@@ -108,18 +108,18 @@ class _LoginPageState extends State<LoginPage> {
                 height: 48,
                 width: double.infinity,
               ),
-              SizedBox(height: 20),
-              Row(
+              const SizedBox(height: 20),
+              const Row(
                 children: [
                   Expanded(child: Divider()),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    padding: EdgeInsets.symmetric(horizontal: 8.0),
                     child: Text("Or"),
                   ),
                   Expanded(child: Divider()),
                 ],
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               CustomButton(
                 icon: Image.asset(
                   "assets/icons/google.png",
@@ -133,7 +133,7 @@ class _LoginPageState extends State<LoginPage> {
                 height: 48,
                 width: double.infinity,
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               CustomButton(
                 icon: Image.asset(
                   "assets/icons/facebook.png",
@@ -148,12 +148,12 @@ class _LoginPageState extends State<LoginPage> {
                 height: 48,
                 width: double.infinity,
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text("Don't have an account?"),
-                  SizedBox(width: 5),
+                  const Text("Don't have an account?"),
+                  const SizedBox(width: 5),
                   GestureDetector(
                     onTap: () {
                       Navigator.push(
@@ -163,7 +163,7 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       );
                     },
-                    child: Text(
+                    child: const Text(
                       "Sign Up",
                       style: TextStyle(
                         color: Colors.red,

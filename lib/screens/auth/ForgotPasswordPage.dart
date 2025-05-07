@@ -28,7 +28,7 @@ class _ForgotpasswordpageState extends State<Forgotpasswordpage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(height: screenHeight * 0.1),
-            Text(
+            const Text(
               "Reset",
               style: TextStyle(
                 fontSize: 50,
@@ -36,7 +36,7 @@ class _ForgotpasswordpageState extends State<Forgotpasswordpage> {
                 color: Colors.red,
               ),
             ),
-            Text(
+            const Text(
               "Password",
               style: TextStyle(
                 fontSize: 50,
@@ -44,8 +44,8 @@ class _ForgotpasswordpageState extends State<Forgotpasswordpage> {
                 color: Colors.black,
               ),
             ),
-            SizedBox(height: 0.10,),
-            Text(
+            const SizedBox(height: 0.10,),
+            const Text(
               "Silakan masukan data yang diperlukan untuk mengubah password anda!"
             ),
             SizedBox(height: screenHeight * 0.02,),

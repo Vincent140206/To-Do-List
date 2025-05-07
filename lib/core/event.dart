@@ -7,6 +7,7 @@ class Event extends HiveObject {
   @HiveField(0)
   String title;
 
+  @override
   @HiveField(1)
   String key;
 

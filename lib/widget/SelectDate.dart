@@ -130,7 +130,7 @@ class _DatePickerFieldState extends State<DatePickerField> {
         ),
         child: Text(
           _controller.text,
-          style: TextStyle(color: Colors.black, fontSize: 20),
+          style: const TextStyle(color: Colors.black, fontSize: 20),
         ),
       ),
     );
