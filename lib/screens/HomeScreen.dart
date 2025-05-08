@@ -436,9 +436,7 @@ class _HomePageState extends State<HomePage> {
                                                         selectedEditTime!.hour,
                                                         selectedEditTime!.minute,
                                                       );
-                                                      // Hapus dulu yang lama
                                                       await eventsBox.delete(event.key);
-                                                      // Simpan event baru dengan key baru (gabungan tanggal + jam)
                                                       final newKey = newDateTime.toIso8601String();
                                                       await eventsBox.put(
                                                           newKey,
@@ -476,6 +474,9 @@ class _HomePageState extends State<HomePage> {
                 ),
               );
             },
+          ),
+          const SliverToBoxAdapter(
+            child: SizedBox(height: 100),
           ),
         ],
       ),
