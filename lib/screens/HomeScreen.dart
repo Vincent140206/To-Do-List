@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
-import 'package:hive/hive.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import '../core/event.dart';
+import '../core/eventRepo.dart';
 import '../widget/Button.dart';
 
 class HomePage extends StatefulWidget {
@@ -13,19 +12,18 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  TextEditingController eventController = TextEditingController();
+  final TextEditingController eventController = TextEditingController();
   DateTime? _selectedDay;
   DateTime today = DateTime.now();
   Map<DateTime, List<Event>> events = {};
   late final ValueNotifier<List<Event>> _selectedEvents;
-  late Box<Event> eventsBox;
+  final EventRepository eventRepository = EventRepository();
 
   @override
   void initState() {
     super.initState();
     _selectedDay = today;
-    _selectedEvents = ValueNotifier(_getEventForDay(_selectedDay!));
-    eventsBox = Hive.box<Event>('eventsBox');
+    _selectedEvents = ValueNotifier([]);
     fetchEvents();
   }
 
@@ -37,53 +35,20 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> fetchEvents() async {
-    events.clear();
-    print("Fetching events. Total events in box: ${eventsBox.length}");
-
-    for (var key in eventsBox.keys) {
-      try {
-        DateTime eventDate = DateTime.parse(key);
-        final eventDateOnly = DateTime(eventDate.year, eventDate.month, eventDate.day);
-
-        if (events.containsKey(eventDateOnly)) {
-          events[eventDateOnly]!.add(eventsBox.get(key)!);
-        } else {
-          events[eventDateOnly] = [eventsBox.get(key)!];
-        }
-        print("Added event: ${eventsBox.get(key)!.title} for date: $eventDateOnly");
-      } catch (e) {
-        print("Error parsing date from event key: $key. Error: $e");
-      }
-    }
-
-    if (_selectedDay != null) {
-      _selectedEvents.value = _getEventForDay(_selectedDay!);
-      print("Selected events for $_selectedDay: ${_selectedEvents.value.length}");
-    }
+    await eventRepository.fetchEvents(events);
+    _selectedEvents.value = _getEventForDay(_selectedDay!);
     setState(() {});
   }
 
   Future<void> addEventToHive(String title, DateTime eventDateTime) async {
-    try {
-      final dateKey = eventDateTime.toIso8601String();
-      print("Adding event '$title' with key: $dateKey");
-
-      Event newEvent = Event(title, key: dateKey);
-
-      await eventsBox.put(dateKey, newEvent);
-      print("Event added to Hive box. Current count: ${eventsBox.length}");
-
-      await fetchEvents();
-    } catch (e) {
-      print("Error adding event to Hive: $e");
-    }
+    await eventRepository.addEvent(title, eventDateTime);
+    await fetchEvents();
   }
 
   void _onDaySelected(DateTime selectedDay, DateTime focusedDay) {
     setState(() {
       _selectedDay = selectedDay;
       _selectedEvents.value = _getEventForDay(_selectedDay!);
-      print("Day selected: $selectedDay. Events: ${_selectedEvents.value.length}");
     });
   }
 
@@ -98,58 +63,55 @@ class _HomePageState extends State<HomePage> {
     const itemHeight = 90.0;
     final row = scrollToIndex ~/ crossAxisCount;
     final initialScrollOffset = row * itemHeight;
-    ScrollController scrollController =
-    ScrollController(initialScrollOffset: initialScrollOffset);
+    ScrollController scrollController = ScrollController(initialScrollOffset: initialScrollOffset);
 
     showDialog(
       context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          backgroundColor: Colors.white,
-          title: const Text('Select Year'),
-          content: SizedBox(
-            height: 300,
-            width: 300,
-            child: GridView.builder(
-              controller: scrollController,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: crossAxisCount,
-                childAspectRatio: 1,
-              ),
-              itemCount: yearList.length,
-              itemBuilder: (BuildContext context, int index) {
-                int year = yearList[index];
-                return GestureDetector(
-                  onTap: () {
-                    DateTime selectedDate = DateTime(year, DateTime.now().month, DateTime.now().day);
-                    if (selectedDate.isBefore(lastDay) || selectedDate.isAtSameMomentAs(lastDay)) {
-                      setState(() {
-                        _selectedDay = selectedDate;
-                        today = selectedDate;
-                        _selectedEvents.value = _getEventForDay(_selectedDay!);
-                      });
-                    }
-                    Navigator.of(context).pop();
-                  },
-                  child: Card(
-                    shadowColor: Colors.black,
-                    color: Colors.white,
-                    child: Center(child: Text(year.toString())),
-                  ),
-                );
-              },
+      builder: (BuildContext context) => AlertDialog(
+        backgroundColor: Colors.white,
+        title: const Text('Select Year'),
+        content: SizedBox(
+          height: 300,
+          width: 300,
+          child: GridView.builder(
+            controller: scrollController,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: crossAxisCount,
+              childAspectRatio: 1,
             ),
+            itemCount: yearList.length,
+            itemBuilder: (BuildContext context, int index) {
+              int year = yearList[index];
+              return GestureDetector(
+                onTap: () {
+                  DateTime selectedDate = DateTime(year, DateTime.now().month, DateTime.now().day);
+                  if (selectedDate.isBefore(lastDay) || selectedDate.isAtSameMomentAs(lastDay)) {
+                    setState(() {
+                      _selectedDay = selectedDate;
+                      today = selectedDate;
+                      _selectedEvents.value = _getEventForDay(_selectedDay!);
+                    });
+                  }
+                  Navigator.of(context).pop();
+                },
+                child: Card(
+                  shadowColor: Colors.black,
+                  color: Colors.white,
+                  child: Center(child: Text(year.toString())),
+                ),
+              );
+            },
           ),
-          actions: [
-            CustomButton(
-              text: "Cancel",
-              onPressed: () => Navigator.of(context).pop(),
-              height: 35,
-              width: 100,
-            ),
-          ],
-        );
-      },
+        ),
+        actions: [
+          CustomButton(
+            text: "Cancel",
+            onPressed: () => Navigator.of(context).pop(),
+            height: 35,
+            width: 100,
+          ),
+        ],
+      ),
     );
   }
 
@@ -221,9 +183,7 @@ class _HomePageState extends State<HomePage> {
                 children: [
                   CustomButton(
                     text: "Cancel",
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
+                    onPressed: () => Navigator.of(context).pop(),
                     height: 35,
                     width: 100,
                   ),
@@ -248,10 +208,102 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  Future<void> _showEditEventDialog(Event event) async {
+    eventController.text = event.title;
+    DateTime eventDateTime = DateTime.parse(event.key);
+    TimeOfDay selectedEditTime = TimeOfDay(hour: eventDateTime.hour, minute: eventDateTime.minute);
+
+    await showDialog(
+      context: context,
+      builder: (context) {
+        TimeOfDay? localSelectedTime = selectedEditTime;
+        return StatefulBuilder(builder: (context, setStateDialog) {
+          return AlertDialog(
+            backgroundColor: Colors.white,
+            scrollable: true,
+            title: const Text("Edit Event"),
+            content: Padding(
+              padding: const EdgeInsets.all(8),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(controller: eventController),
+                  const SizedBox(height: 20),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(localSelectedTime != null ? 'Selected time: ${localSelectedTime?.format(context)}' : 'No time selected'),
+                      ),
+                      TextButton(
+                        onPressed: () async {
+                          TimeOfDay? picked = await showTimePicker(
+                            context: context,
+                            initialTime: localSelectedTime ?? TimeOfDay.now(),
+                          );
+                          if (picked != null) {
+                            setStateDialog(() {
+                              localSelectedTime = picked;
+                            });
+                          }
+                        },
+                        child: const Text('Choose Time'),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              Row(
+                children: [
+                  CustomButton(
+                    text: "Cancel",
+                    onPressed: () {
+                      eventController.clear();
+                      Navigator.of(context).pop();
+                    },
+                    height: 35,
+                    width: 100,
+                  ),
+                  const Spacer(),
+                  CustomButton(
+                    text: "Update",
+                    onPressed: () async {
+                      if (_selectedDay != null && eventController.text.isNotEmpty && localSelectedTime != null) {
+                        DateTime newDateTime = DateTime(
+                          _selectedDay!.year,
+                          _selectedDay!.month,
+                          _selectedDay!.day,
+                          localSelectedTime!.hour,
+                          localSelectedTime!.minute,
+                        );
+                        await eventRepository.deleteEvent(event.key);
+                        final newKey = newDateTime.toIso8601String();
+                        await eventRepository.eventsBox.put(
+                          newKey,
+                          Event(eventController.text, key: newKey),
+                        );
+                        Navigator.of(context).pop();
+                        eventController.clear();
+                        await fetchEvents();
+                      }
+                    },
+                    height: 35,
+                    width: 100,
+                  ),
+                ],
+              ),
+            ],
+          );
+        });
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    var screenWidth = MediaQuery.of(context).size.width;
-    var screenHeight = MediaQuery.of(context).size.height;
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
     return Scaffold(
       backgroundColor: Colors.white,
       floatingActionButton: FloatingActionButton(
@@ -364,104 +416,15 @@ class _HomePageState extends State<HomePage> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             IconButton(
-                                onPressed: () {
-                                  eventController.text = event.title;
-                                  DateTime eventDateTime = DateTime.parse(event.key);
-                                  TimeOfDay editingTime = TimeOfDay(hour: eventDateTime.hour, minute: eventDateTime.minute);
-                                  showDialog(
-                                    context: context,
-                                    builder: (context) {
-                                      TimeOfDay? selectedEditTime = editingTime;
-                                      return StatefulBuilder(builder: (context, setStateDialog) {
-                                        return AlertDialog(
-                                          backgroundColor: Colors.white,
-                                          scrollable: true,
-                                          title: const Text("Edit Event"),
-                                          content: Padding(
-                                            padding: const EdgeInsets.all(8),
-                                            child: Column(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                TextField(controller: eventController),
-                                                const SizedBox(height: 20),
-                                                Row(
-                                                  children: [
-                                                    Expanded(
-                                                      child: Text(selectedEditTime != null
-                                                          ? 'Selected time: ${selectedEditTime?.format(context)}'
-                                                          : 'No time selected'),
-                                                    ),
-                                                    TextButton(
-                                                      onPressed: () async {
-                                                        TimeOfDay? picked = await showTimePicker(
-                                                          context: context,
-                                                          initialTime: selectedEditTime ?? TimeOfDay.now(),
-                                                        );
-                                                        if (picked != null) {
-                                                          setStateDialog(() {
-                                                            selectedEditTime = picked;
-                                                          });
-                                                        }
-                                                      },
-                                                      child: const Text('Choose Time'),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          actions: [
-                                            Row(
-                                              children: [
-                                                CustomButton(
-                                                  text: "Cancel",
-                                                  onPressed: () {
-                                                    Navigator.of(context).pop();
-                                                    eventController.clear();
-                                                  },
-                                                  height: 35,
-                                                  width: 100,
-                                                ),
-                                                const Spacer(),
-                                                CustomButton(
-                                                  text: "Update",
-                                                  onPressed: () async {
-                                                    if (_selectedDay != null &&
-                                                        eventController.text.isNotEmpty &&
-                                                        selectedEditTime != null) {
-                                                      DateTime newDateTime = DateTime(
-                                                        _selectedDay!.year,
-                                                        _selectedDay!.month,
-                                                        _selectedDay!.day,
-                                                        selectedEditTime!.hour,
-                                                        selectedEditTime!.minute,
-                                                      );
-                                                      await eventsBox.delete(event.key);
-                                                      final newKey = newDateTime.toIso8601String();
-                                                      await eventsBox.put(
-                                                          newKey,
-                                                          Event(eventController.text, key: newKey));
-                                                      Navigator.of(context).pop();
-                                                      eventController.clear();
-                                                      await fetchEvents();
-                                                    }
-                                                  },
-                                                  height: 35,
-                                                  width: 100,
-                                                ),
-                                              ],
-                                            ),
-                                          ],
-                                        );
-                                      });
-                                    },
-                                  );
-                                },
-                                icon: const Icon(Icons.edit, color: Colors.red)),
+                              onPressed: () {
+                                _showEditEventDialog(event);
+                              },
+                              icon: const Icon(Icons.edit, color: Colors.red),
+                            ),
                             IconButton(
                               icon: const Icon(Icons.delete, color: Colors.red),
                               onPressed: () async {
-                                await eventsBox.delete(event.key);
+                                await eventRepository.deleteEvent(event.key);
                                 await fetchEvents();
                               },
                             ),
