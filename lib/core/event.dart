@@ -7,9 +7,12 @@ class Event extends HiveObject {
   @HiveField(0)
   String title;
 
-  @override
   @HiveField(1)
-  String key;
+  String eventKey;
 
-  Event(this.title, {this.key = ""});
+  Event(this.title, {this.eventKey = ""});
+  String getFormattedTime() {
+    DateTime dateTime = DateTime.parse(key);
+    return "${dateTime.hour}:${dateTime.minute.toString().padLeft(2, '0')}";
+  }
 }

@@ -18,7 +18,7 @@ class EventAdapter extends TypeAdapter<Event> {
     };
     return Event(
       fields[0] as String,
-      key: fields[1] as String,
+      eventKey: fields[1] as String,
     );
   }
 
@@ -29,7 +29,7 @@ class EventAdapter extends TypeAdapter<Event> {
       ..writeByte(0)
       ..write(obj.title)
       ..writeByte(1)
-      ..write(obj.key);
+      ..write(obj.eventKey);
   }
 
   @override

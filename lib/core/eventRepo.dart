@@ -28,7 +28,7 @@ class EventRepository {
 
   Future<void> addEvent(String title, DateTime eventDateTime) async {
     final dateKey = eventDateTime.toIso8601String();
-    Event newEvent = Event(title, key: dateKey);
+    Event newEvent = Event(title, eventKey: dateKey);
     await eventsBox.put(dateKey, newEvent);
   }
 

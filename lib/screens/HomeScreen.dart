@@ -1,7 +1,9 @@
+import 'package:calendar_app/core/NotificationDebugHelper.dart';
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../core/event.dart';
 import '../core/eventRepo.dart';
+import '../core/notification_service.dart';
 import '../widget/Button.dart';
 
 class HomePage extends StatefulWidget {
@@ -42,8 +44,17 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> addEventToHive(String title, DateTime eventDateTime) async {
     await eventRepository.addEvent(title, eventDateTime);
+
+    await NotificationService().scheduleNotification(
+      id: eventDateTime.millisecondsSinceEpoch ~/ 1000,
+      title: 'Upcoming Event',
+      body: title,
+      scheduledDate: eventDateTime,
+    );
+
     await fetchEvents();
   }
+
 
   void _onDaySelected(DateTime selectedDay, DateTime focusedDay) {
     setState(() {
@@ -126,7 +137,7 @@ class _HomePageState extends State<HomePage> {
       _selectedDay!.year,
       _selectedDay!.month,
       _selectedDay!.day,
-      12, 0,
+      12, 0,  // Default to noon for initial time
     );
     DateTime selectedTime = initialDateTime;
 
@@ -151,7 +162,9 @@ class _HomePageState extends State<HomePage> {
                   Row(
                     children: [
                       Expanded(
-                        child: Text('Selected time: ${TimeOfDay.fromDateTime(selectedTime).format(context)}'),
+                        child: Text(
+                          'Selected time: ${TimeOfDay.fromDateTime(selectedTime).format(context)}',
+                        ),
                       ),
                       TextButton(
                         onPressed: () async {
@@ -183,7 +196,7 @@ class _HomePageState extends State<HomePage> {
                 children: [
                   CustomButton(
                     text: "Cancel",
-                    onPressed: () => Navigator.of(context).pop(),
+                    onPressed: () => Navigator.pop(context),
                     height: 35,
                     width: 100,
                   ),
@@ -192,15 +205,28 @@ class _HomePageState extends State<HomePage> {
                     text: "Submit",
                     onPressed: () async {
                       if (_selectedDay != null && eventController.text.isNotEmpty) {
-                        await addEventToHive(eventController.text, selectedTime);
-                        Navigator.of(context).pop();
+                        try {
+                          // Add event to Hive with the selected date and time
+                          await addEventToHive(eventController.text, selectedTime);
+                          if (mounted) {
+                            Navigator.pop(context);
+                          }
+                        } catch (e) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Error adding event: $e')),
+                          );
+                        }
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Please fill in all fields')),
+                        );
                       }
                     },
                     height: 35,
                     width: 100,
                   ),
                 ],
-              )
+              ),
             ],
           );
         });
@@ -281,16 +307,19 @@ class _HomePageState extends State<HomePage> {
                         final newKey = newDateTime.toIso8601String();
                         await eventRepository.eventsBox.put(
                           newKey,
-                          Event(eventController.text, key: newKey),
+                          Event(eventController.text, eventKey: newKey),
                         );
                         Navigator.of(context).pop();
                         eventController.clear();
                         await fetchEvents();
+
+                        Event updatedEvent = Event(eventController.text, eventKey: newKey);
+                        NotificationService().showUpdatedNotification(updatedEvent);
                       }
                     },
                     height: 35,
                     width: 100,
-                  ),
+                  )
                 ],
               ),
             ],
@@ -438,8 +467,19 @@ class _HomePageState extends State<HomePage> {
               );
             },
           ),
-          const SliverToBoxAdapter(
-            child: SizedBox(height: 100),
+          SliverToBoxAdapter(
+            child: Column(
+              children: [
+                const SizedBox(height: 100),
+                CustomButton(text: "tes", onPressed: () {
+                  NotificationService().testNotification();
+                }, height: 30, width: 70),
+                const SizedBox(height: 100),
+                CustomButton(text: "debug", onPressed: () {
+                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => NotificationDebugSolution()));
+                }, height: 30, width: 100)
+              ],
+            ),
           ),
         ],
       ),
