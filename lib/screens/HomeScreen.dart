@@ -1,9 +1,7 @@
-import 'package:calendar_app/core/NotificationDebugHelper.dart';
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../core/event.dart';
 import '../core/eventRepo.dart';
-import '../core/notification_service.dart';
 import '../widget/Button.dart';
 
 class HomePage extends StatefulWidget {
@@ -41,20 +39,6 @@ class _HomePageState extends State<HomePage> {
     _selectedEvents.value = _getEventForDay(_selectedDay!);
     setState(() {});
   }
-
-  Future<void> addEventToHive(String title, DateTime eventDateTime) async {
-    await eventRepository.addEvent(title, eventDateTime);
-
-    await NotificationService().scheduleNotification(
-      id: eventDateTime.millisecondsSinceEpoch ~/ 1000,
-      title: 'Upcoming Event',
-      body: title,
-      scheduledDate: eventDateTime,
-    );
-
-    await fetchEvents();
-  }
-
 
   void _onDaySelected(DateTime selectedDay, DateTime focusedDay) {
     setState(() {
@@ -137,7 +121,7 @@ class _HomePageState extends State<HomePage> {
       _selectedDay!.year,
       _selectedDay!.month,
       _selectedDay!.day,
-      12, 0,  // Default to noon for initial time
+      12, 0,
     );
     DateTime selectedTime = initialDateTime;
 
@@ -162,9 +146,7 @@ class _HomePageState extends State<HomePage> {
                   Row(
                     children: [
                       Expanded(
-                        child: Text(
-                          'Selected time: ${TimeOfDay.fromDateTime(selectedTime).format(context)}',
-                        ),
+                        child: Text('Selected time: ${TimeOfDay.fromDateTime(selectedTime).format(context)}'),
                       ),
                       TextButton(
                         onPressed: () async {
@@ -196,7 +178,7 @@ class _HomePageState extends State<HomePage> {
                 children: [
                   CustomButton(
                     text: "Cancel",
-                    onPressed: () => Navigator.pop(context),
+                    onPressed: () => Navigator.of(context).pop(),
                     height: 35,
                     width: 100,
                   ),
@@ -205,20 +187,15 @@ class _HomePageState extends State<HomePage> {
                     text: "Submit",
                     onPressed: () async {
                       if (_selectedDay != null && eventController.text.isNotEmpty) {
-                        try {
-                          // Add event to Hive with the selected date and time
-                          await addEventToHive(eventController.text, selectedTime);
-                          if (mounted) {
-                            Navigator.pop(context);
-                          }
-                        } catch (e) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Error adding event: $e')),
-                          );
-                        }
-                      } else {
+                        await eventRepository.addEvent(eventController.text, selectedTime);
+                        Navigator.of(context).pop();
+                        await fetchEvents();
+
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Please fill in all fields')),
+                          SnackBar(
+                            content: Text('Event created with notification at ${TimeOfDay.fromDateTime(selectedTime).format(context)}'),
+                            duration: const Duration(seconds: 2),
+                          ),
                         );
                       }
                     },
@@ -226,7 +203,7 @@ class _HomePageState extends State<HomePage> {
                     width: 100,
                   ),
                 ],
-              ),
+              )
             ],
           );
         });
@@ -303,23 +280,25 @@ class _HomePageState extends State<HomePage> {
                           localSelectedTime!.hour,
                           localSelectedTime!.minute,
                         );
-                        await eventRepository.deleteEvent(event.key);
-                        final newKey = newDateTime.toIso8601String();
-                        await eventRepository.eventsBox.put(
-                          newKey,
-                          Event(eventController.text, eventKey: newKey),
+                        await eventRepository.updateEvent(
+                            event.key,
+                            eventController.text,
+                            newDateTime
                         );
                         Navigator.of(context).pop();
                         eventController.clear();
                         await fetchEvents();
-
-                        Event updatedEvent = Event(eventController.text, eventKey: newKey);
-                        NotificationService().showUpdatedNotification(updatedEvent);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Event updated with notification at ${localSelectedTime?.format(context)}'),
+                            duration: const Duration(seconds: 2),
+                          ),
+                        );
                       }
                     },
                     height: 35,
                     width: 100,
-                  )
+                  ),
                 ],
               ),
             ],
@@ -455,6 +434,12 @@ class _HomePageState extends State<HomePage> {
                               onPressed: () async {
                                 await eventRepository.deleteEvent(event.key);
                                 await fetchEvents();
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Event and notification deleted'),
+                                    duration: Duration(seconds: 2),
+                                  ),
+                                );
                               },
                             ),
                           ],
@@ -467,19 +452,8 @@ class _HomePageState extends State<HomePage> {
               );
             },
           ),
-          SliverToBoxAdapter(
-            child: Column(
-              children: [
-                const SizedBox(height: 100),
-                CustomButton(text: "tes", onPressed: () {
-                  NotificationService().testNotification();
-                }, height: 30, width: 70),
-                const SizedBox(height: 100),
-                CustomButton(text: "debug", onPressed: () {
-                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => NotificationDebugSolution()));
-                }, height: 30, width: 100)
-              ],
-            ),
+          const SliverToBoxAdapter(
+            child: SizedBox(height: 100),
           ),
         ],
       ),
