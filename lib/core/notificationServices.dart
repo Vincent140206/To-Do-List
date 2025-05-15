@@ -14,7 +14,6 @@ class NotificationServices {
     tz_data.initializeTimeZones();
     tz.setLocalLocation(tz.getLocation('Asia/Jakarta'));
 
-    // Ubah 'app_icon' ke nama file icon kustom Anda yang ada di folder drawable
     const AndroidInitializationSettings initializationSettingsAndroid =
     AndroidInitializationSettings('@mipmap/ic_launcher');
 
@@ -55,12 +54,9 @@ class NotificationServices {
   Future selectNotification(String? payload) async {
     if (payload != null) {
       print('Notification payload: $payload');
-      // Di sini Anda bisa menambahkan navigasi ke halaman tertentu
-      // Contoh: Navigator.of(context).pushNamed('/detailPage', arguments: payload);
     }
   }
 
-  // Method untuk membuat notification channel kustom
   Future<void> createNotificationChannel({
     required String channelId,
     required String channelName,
@@ -82,7 +78,6 @@ class NotificationServices {
         ?.createNotificationChannel(channel);
   }
 
-  // Method untuk notifikasi sederhana
   Future<void> showSimpleNotification({
     required int id,
     required String title,
@@ -120,7 +115,6 @@ class NotificationServices {
     );
   }
 
-  // Method untuk notifikasi dengan gambar besar
   Future<void> showBigPictureNotification({
     required int id,
     required String title,
@@ -164,7 +158,6 @@ class NotificationServices {
     );
   }
 
-  // Method untuk notifikasi dengan teks panjang
   Future<void> showBigTextNotification({
     required int id,
     required String title,
@@ -205,7 +198,6 @@ class NotificationServices {
     );
   }
 
-  // Method untuk notifikasi dengan tombol aksi
   Future<void> showNotificationWithActions({
     required int id,
     required String title,
@@ -216,7 +208,7 @@ class NotificationServices {
       id,
       title,
       body,
-      NotificationDetails(
+      const NotificationDetails(
         android: AndroidNotificationDetails(
           'action_channel',
           'Action Notifications',
@@ -249,12 +241,10 @@ class NotificationServices {
     );
   }
 
-  // Method untuk notifikasi group
   Future<void> showGroupedNotifications({
     required String groupKey,
     required List<NotificationInfo> notifications,
   }) async {
-    // Menampilkan setiap notifikasi dalam grup
     for (int i = 0; i < notifications.length; i++) {
       final NotificationInfo notification = notifications[i];
       await flutterLocalNotificationsPlugin.show(
@@ -283,9 +273,8 @@ class NotificationServices {
       );
     }
 
-    // Menampilkan ringkasan grup
     await flutterLocalNotificationsPlugin.show(
-      0, // ID untuk summary notification
+      0,
       'Anda memiliki ${notifications.length} notifikasi baru',
       'Ketuk untuk melihat detail',
       NotificationDetails(
@@ -309,7 +298,6 @@ class NotificationServices {
     );
   }
 
-  // Method untuk notifikasi kustom dengan progress
   Future<void> showProgressNotification({
     required int id,
     required String title,
@@ -345,7 +333,6 @@ class NotificationServices {
     );
   }
 
-  // Method untuk menjadwalkan notifikasi dengan kustomisasi
   Future<void> scheduleNotification({
     required int id,
     required String title,
@@ -409,7 +396,6 @@ class NotificationServices {
     print('Notification scheduled for: $scheduledDate');
   }
 
-  // Method untuk menjadwalkan notifikasi berulang
   Future<void> scheduleRepeatingNotification({
     required int id,
     required String title,
@@ -448,7 +434,6 @@ class NotificationServices {
     print('Repeating notification scheduled for: $scheduledDate');
   }
 
-  // Helper method untuk mengkonversi RepeatInterval ke DateTimeComponents
   DateTimeComponents? getDateTimeComponents(RepeatInterval interval) {
     switch (interval) {
       case RepeatInterval.daily:
